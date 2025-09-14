@@ -8,97 +8,128 @@
 
 extern char** environ;
 
-void printUserIDs() {
+void print_user_ids()
+{
     printf("The real user ID: %d.\n", getuid());
     printf("The effective user ID: %d.\n", geteuid());
 }
 
-void printGroupIDs() {
+void print_group_ids()
+{
     printf("The real group ID: %d.\n", getgid());
     printf("The effective group ID: %d.\n", getegid());
 }
 
-void printProcID() {
-    pid_t procID = getpid();
-    printf("The process ID: %d.\n", procID);
+void print_proc_id()
+{
+    pid_t proc_id = getpid();
+    printf("The process ID: %d.\n", proc_id);
 }
 
-void printParentProcID() {
-    pid_t parentID = getppid();
-    printf("The parent process ID: %d.\n", parentID);
+void print_parent_proc_id()
+{
+    pid_t parent_id = getppid();
+    printf("The parent process ID: %d.\n", parent_id);
 }
 
-void printGroupProcID() {
-    pid_t groupID = getpgid(0);
-    printf("The group process ID: %d.\n", groupID);
+void print_group_proc_id()
+{
+    pid_t group_id = getpgid(0);
+    printf("The group process ID: %d.\n", group_id);
 }
 
-void printULimit() {
+void print_u_limit()
+{
     long limit = ulimit(UL_GETFSIZE);
-    if (limit == -1 && errno != 0) {
+    if (limit == -1 && errno != 0)
+    {
         perror("Error while getting ulimit");
-    } else {
+    }
+    else
+    {
         printf("ulimit is %ld.\n", limit);
     }
 }
 
-void setULimit(long newULimit) {
-    long error = ulimit(UL_SETFSIZE, newULimit);
-    if (error == -1 && errno != 0) {
+void set_u_limit(long new_u_limit)
+{
+    long error = ulimit(UL_SETFSIZE, new_u_limit);
+    if (error == -1 && errno != 0)
+    {
         perror("Error while setting ulimit");
-    } else {
-        printf("Success! New ulimit is %ld.\n", newULimit);
+    }
+    else
+    {
+        printf("Success! New ulimit is %ld.\n", new_u_limit);
     }
 }
 
-void printCoreLimit() {
+void print_core_limit()
+{
     struct rlimit rlim;
     int error = getrlimit(RLIMIT_CORE, &rlim);
-    if (error == -1 && errno != 0) {
+    if (error == -1 && errno != 0)
+    {
         perror("Error while getting RLIMIT_CORE");
-    } else {
+    }
+    else
+    {
         printf("Cur core limit is %ld.\n", rlim.rlim_cur);
         printf("Max core limit is %ld.\n", rlim.rlim_max);
     }
 }
 
-void setCoreLimit(long newCoreSize) {
+void set_core_limit(long new_core_size)
+{
     struct rlimit rlim;
-    rlim.rlim_cur = newCoreSize;
-    rlim.rlim_max = newCoreSize;
+    rlim.rlim_cur = new_core_size;
+    rlim.rlim_max = new_core_size;
 
     int error = setrlimit(RLIMIT_CORE, &rlim);
-    if (error == -1) {
+    if (error == -1)
+    {
         perror("Error while setting RLIMIT_CORE");
-    } else {
-        printf("Success! Core limit is %ld.\n", newCoreSize);
+    }
+    else
+    {
+        printf("Success! Core limit is %ld.\n", new_core_size);
     }
 }
 
-void printDirectory() {
-    char buffer[PATH_MAX+1] = { 0 };
+void print_directory()
+{
+    char buffer[PATH_MAX + 1] = {0};
     char* error = getcwd(buffer, PATH_MAX);
-    
-    if (error == NULL) {
+
+    if (error == NULL)
+    {
         perror("Error getting current directory");
-    } else {
+    }
+    else
+    {
         buffer[PATH_MAX] = '\0';
         printf("Current work directory is '%s'.\n", buffer);
     }
 }
 
-void printEnvVars() {
+void print_env_vars()
+{
     printf("Environment variables:\n");
-    for (int i = 0; environ[i] != NULL; i++) {
+    for (int i = 0; environ[i] != NULL; i++)
+    {
         printf("\t%s\n", environ[i]);
     }
 }
 
-void newOrChangeEnvVar(char* str) {
+void new_or_change_env_var(char* str)
+{
     int error = putenv(str);
-    if (error == 0) {
+    if (error == 0)
+    {
         printf("putenv() was successful.\n");
-    } else {
+    }
+    else
+    {
         perror("Error when creating or changing environment variable");
     }
 }
@@ -107,74 +138,81 @@ int main(int argc, char* argv[])
 {
     char options[] = "ispuU:cC:dvV:";
     int c = 0;
-    int argCnt = 0;
+    int arg_cnt = 0;
 
-    long newULimit = 0;
-    long newCoreLimit = 0;
+    long new_u_limit = 0;
+    long new_core_size = 0;
     char* endptr;
 
-    if (argc <= 1) {
-        printf("No arguments.\n"); 
+    if (argc <= 1)
+    {
+        printf("No arguments.\n");
+        return 0;
     }
-    else {
-        while ((c = getopt(argc, argv, options)) != EOF) {
-            argCnt++;
-            switch (c) {
+    while ((c = getopt(argc, argv, options)) != EOF)
+    {
+        arg_cnt++;
+        switch (c)
+        {
             case 'i':
-                printUserIDs();
-                printGroupIDs();
+                print_user_ids();
+                print_group_ids();
                 break;
             case 's':
                 setpgid(0, 0);
                 break;
             case 'p':
-                printProcID();
-                printParentProcID();
-                printGroupProcID();
+                print_proc_id();
+                print_parent_proc_id();
+                print_group_proc_id();
                 break;
             case 'u':
-                printULimit();
+                print_u_limit();
                 break;
             case 'U':
-                newULimit = strtol(optarg, &endptr, 10);
-                if (endptr != optarg) {
-                    setULimit(newULimit);
+                new_u_limit = strtol(optarg, &endptr, 10);
+                if (endptr != optarg)
+                {
+                    set_u_limit(new_u_limit);
                 }
-                else {
+                else
+                {
                     printf("Argument '%s' isn't number.\n", optarg);
                 }
                 break;
             case 'c':
-                printCoreLimit();
+                print_core_limit();
                 break;
             case 'C':
-                newCoreLimit = strtol(optarg, &endptr, 10);
-                if (endptr != optarg) {
-                    setCoreLimit(newCoreLimit);
+                new_core_size = strtol(optarg, &endptr, 10);
+                if (endptr != optarg)
+                {
+                    set_core_limit(new_core_size);
                 }
-                else {
+                else
+                {
                     printf("Argument '%s' isn't number.\n", optarg);
                 }
                 break;
             case 'd':
-                printDirectory();
+                print_directory();
                 break;
             case 'v':
-                printEnvVars();
+                print_env_vars();
                 break;
             case 'V':
-                newOrChangeEnvVar(optarg);
+                new_or_change_env_var(optarg);
                 break;
             case '?':
                 printf("invalid option is '%c'.\n", optopt);
                 break;
-            }
-        }
-
-        if (argCnt == 0) {
-            printf("No options.\n");
         }
     }
-    
+
+    if (arg_cnt == 0)
+    {
+        printf("No options.\n");
+    }
+
     return 0;
 }
