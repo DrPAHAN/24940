@@ -143,10 +143,10 @@ int main()
     switch (get_list_from_user(startPointer))
     {
     case 1:
-        exit_program(EXIT_FAILURE, "getListFromUser failed");
+        exit_program(EXIT_FAILURE, "get_list_from_user failed");
         break;
     case 2:
-        fprintf(stderr, "getListFromUser failed: EOF\n");
+        fprintf(stderr, "get_list_from_user failed: EOF\n");
         exit_program(EXIT_FAILURE, NULL);
     }
 
