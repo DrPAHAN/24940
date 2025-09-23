@@ -1,7 +1,7 @@
 /* -*- coding: koi8-r -*-
  * Программа для обработки опций процесса с использованием getopt(3C)
  * Кодировка: KOI8-R
- * Компиляция: cc -o prog getopt_ex.c
+ * Компиляция: gcc -o prog getopt_ex.c
  */
 
 #include <stdio.h>
@@ -14,7 +14,7 @@
 
 int main(int argc, char *argv[])
 {
-    char options[] = "f:c:vV:U:C:"; /* создание строки допустимых опций */
+    char options[] = "ispud:c:vV:U:C:"; /* создание строки допустимых опций */
     int c, invalid = 0; //объявление флагов опций
 
     printf("argc = %d\n", argc);
