@@ -12,7 +12,7 @@ typedef struct Node
     struct Node* next;
 } Node;
 
-Node* addNode(Node* prev, char* string)
+Node* add_node(Node* prev, char* string)
 {
     Node* ans;
     ans = malloc(sizeof(Node));
@@ -30,25 +30,25 @@ Node* addNode(Node* prev, char* string)
     return ans;
 }
 
-void printList(Node* cur)
+void print_list(Node* cur)
 {
     if (cur != NULL)
     {
         printf(cur->string);
-        printList(cur->next);
+        print_list(cur->next);
     }
 }
 
-void freeList(Node* cur)
+void free_list(Node* cur)
 {
     if (cur != NULL)
     {
-        freeList(cur->next);
+        free_list(cur->next);
         free(cur);
     }
 }
 
-void exitProgram(int code, char* message)
+void exit_program(int code, char* message)
 {
     if (message != NULL)
     {
@@ -57,7 +57,7 @@ void exitProgram(int code, char* message)
     exit(code);
 }
 
-int getListFromUser(Node** startList)
+int get_list_from_user(Node** startList)
 {
     char buffer[LEN_BUFFER], flag_fullstop = 0, flag_start = 1;
     char* string = NULL;
@@ -101,7 +101,7 @@ int getListFromUser(Node** startList)
             strcat(string, buffer);
         }
 
-        prev = addNode(prev, string);
+        prev = add_node(prev, string);
 
         if (prev == NULL)
         {
@@ -140,20 +140,20 @@ int main()
     Node* start = NULL;
     Node** startPointer = &start;
 
-    switch (getListFromUser(startPointer))
+    switch (get_list_from_user(startPointer))
     {
     case 1:
-        exitProgram(EXIT_FAILURE, "getListFromUser failed");
+        exit_program(EXIT_FAILURE, "getListFromUser failed");
         break;
     case 2:
         fprintf(stderr, "getListFromUser failed: EOF\n");
-        exitProgram(EXIT_FAILURE, NULL);
+        exit_program(EXIT_FAILURE, NULL);
     }
 
     puts("strings:");
-    printList(start);
+    print_list(start);
 
-    freeList(start);
+    free_list(start);
 
-    exitProgram(EXIT_SUCCESS, NULL);
+    exit_program(EXIT_SUCCESS, NULL);
 }
