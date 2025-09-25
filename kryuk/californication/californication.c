@@ -8,13 +8,13 @@ main() {
     time_t now;
     struct tm *sp;
     
-    // Устанавливаем часовой пояс Калифорнии (PST/PDT)
-    setenv("TZ", "America/Los_Angeles", 1);
+    // Устанавливаем часовой пояс Калифорнии (PST)
+    setenv("TZ", "PST8", 1);
     tzset();
 
     (void) time( &now );
 
-    printf("Время в Калифорнии (PST/PDT):\n");
+    printf("Время в Калифорнии (PST):\n");
     printf("%s", ctime( &now ) );
 
     sp = localtime(&now);
