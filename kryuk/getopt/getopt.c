@@ -37,6 +37,7 @@ void print_usage(const char *progname) {
 }
 
 void print_user_group_ids() {
+    printf("\n");
     printf("Real UID: %d\n", getuid());
     printf("Effective UID: %d\n", geteuid());
     printf("Real GID: %d\n", getgid());
@@ -44,6 +45,7 @@ void print_user_group_ids() {
 }
 
 void become_group_leader() {
+    printf("\n");
     if (setpgid(0, 0) == -1) {
         perror("setpgid");
         return;
@@ -52,12 +54,14 @@ void become_group_leader() {
 }
 
 void print_process_ids() {
+    printf("\n");
     printf("Process ID: %d\n", getpid());
     printf("Parent Process ID: %d\n", getppid());
     printf("Process Group ID: %d\n", getpgrp());
 }
 
 void print_rlimit(int resource, const char *description) {
+    printf("\n");
     struct rlimit rlim;
     if (getrlimit(resource, &rlim) == -1) {
         perror("getrlimit");
@@ -67,6 +71,7 @@ void print_rlimit(int resource, const char *description) {
 }
 
 void change_rlimit(int resource, const char *value, const char *description) {
+    printf("\n");
     long new_limit = atol(value);
     if (new_limit < 0) {
         fprintf(stderr, "Invalid %s value: %s\n", description, value);
@@ -101,6 +106,7 @@ void change_core_size(const char *value) {
 }
 
 void print_current_directory() {
+    printf("\n");
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
         perror("getcwd");
@@ -110,6 +116,7 @@ void print_current_directory() {
 }
 
 void print_environment() {
+    printf("\n");
     extern char **environ;
     char **env = environ;
     
@@ -119,6 +126,16 @@ void print_environment() {
         env++;
     }
 }
+
+void set_environment_variable(const char *name, const char *value) {
+    printf("\n");
+    if (setenv(name, value, 1) == -1) {
+        perror("setenv");
+        return;
+    }
+    printf("Environment variable %s set to %s\n", name, value);
+}
+
 
 int parse_name_value(const char *input, char **name, char **value) {
     char *equals = strchr(input, '=');
@@ -145,14 +162,6 @@ int parse_name_value(const char *input, char **name, char **value) {
     (*name)[name_len] = '\0';
     
     return 0;
-}
-
-void set_environment_variable(const char *name, const char *value) {
-    if (setenv(name, value, 1) == -1) {
-        perror("setenv");
-        return;
-    }
-    printf("Environment variable %s set to %s\n", name, value);
 }
 
 int main(int argc, char *argv[]) {
