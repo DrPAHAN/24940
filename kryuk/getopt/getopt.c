@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 500
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -7,6 +8,18 @@
 #include <errno.h>
 #include <limits.h>
 #include <sys/resource.h>
+#include <sys/param.h>
+#include <getopt.h>
+
+// Custom strdup implementation for Solaris compatibility
+char *strdup(const char *s) {
+    size_t len = strlen(s) + 1;
+    char *dup = malloc(len);
+    if (dup != NULL) {
+        strcpy(dup, s);
+    }
+    return dup;
+}
 
 void print_usage(const char *progname) {
     printf("Usage: %s [options]\n", progname);
