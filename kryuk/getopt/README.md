@@ -1,6 +1,6 @@
 # Getopt Program
 
-A Linux program that handles various system options using getopt(3C). Implements all required functions with a modern approach to error handling and modular architecture.
+A Solaris program that handles various system options using getopt(3C). Implements all required functions with modern GCC features, comprehensive error handling, and modular architecture.
 
 ## Compilation
 
@@ -131,7 +131,7 @@ void set_environment_variable(const char *name, const char *value);
 
 ## Requirements
 
-- **OS**: Linux system
+- **OS**: Solaris system with GCC support
 - **Compiler**: GCC with C99 support
 - **Libraries**: Standard C libraries (libc)
 - **Header files**: 
@@ -154,13 +154,33 @@ make clean
 make install
 ```
 
+## GCC Compiler Features
+
+This program is optimized for GCC with the following features:
+
+### Compiler Flags
+- **`-Wall`** - Enable all common warnings
+- **`-Wextra`** - Enable extra warnings
+- **`-std=c99`** - Use C99 standard
+- **`-D_GNU_SOURCE`** - Enable GNU extensions
+
+### GCC-Specific Optimizations
+- **Built-in `strdup()`** - Uses GCC's optimized string duplication
+- **Built-in `setenv()`** - Uses GCC's environment variable handling
+- **Enhanced error checking** - GCC's comprehensive warning system
+- **Memory safety** - GCC's advanced memory management features
+
+### Benefits of GCC
+- **Better error messages** with detailed warnings
+- **Modern C99 features** and extensions
+- **Optimized performance** with GCC's advanced optimizations
+- **Cross-platform compatibility** with GNU toolchain
+- **Rich debugging support** with GCC's debugging features
+
 ## Debugging
 
 The program outputs detailed error messages:
 - **System errors** via `perror()`
 - **Validation errors** with problem description
 - **Informative messages** about performed operations
-
-## License
-
-Educational project for studying system programming in Linux.
+- **GCC warnings** for potential issues during compilation
