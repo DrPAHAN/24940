@@ -36,7 +36,7 @@ void print_sanitized(const char *s)
 {
     for (const unsigned char *p = (const unsigned char *)s; *p != '\0'; p++)
     {
-        if (isprint(*p) && *p != 0x1B)
+        if (isprint(*p))
         {
             putchar(*p);
         }
