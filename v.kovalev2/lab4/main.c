@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifndef LEN_BUFFER
 #define LEN_BUFFER 10
@@ -30,11 +31,28 @@ Node* add_node(Node* prev, char* string)
     return ans;
 }
 
+
+void print_sanitized(const char *s)
+{
+    for (const unsigned char *p = (const unsigned char *)s; *p != '\0'; p++)
+    {
+        if (isprint(*p) && *p != 0x1B)
+        {
+            putchar(*p);
+        }
+        else
+        {
+            printf("\\x%02X", *p);
+        }
+    }
+    putchar('\n');
+}
+
 void print_list(Node* cur)
 {
     if (cur != NULL)
     {
-        printf(cur->string);
+        print_sanitized(cur->string);
         print_list(cur->next);
     }
 }
