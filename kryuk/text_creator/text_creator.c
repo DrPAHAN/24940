@@ -50,12 +50,12 @@ int add_string(struct Node **head, struct Node **current) {
     newNode->next = NULL;
     
     // Add node to list
-    if (head == NULL) {
-        head = newNode;
-        current = newNode;
+    if (*head == NULL) {
+        *head = newNode;
+        *current = newNode;
     } else {
-        current->next = newNode;
-        current = newNode;
+        (*current)->next = newNode;
+        *current = newNode;
     }
 
     // Free input buffer

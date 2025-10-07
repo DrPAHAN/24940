@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -D_GNU_SOURCE
+CFLAGS = -Wall -Wextra -std=c99
 TARGETS = californication
 SOURCE = californication.c
 

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -D_GNU_SOURCE
+CFLAGS = -Wall -Wextra -std=c99
 TARGET = text_creator
 SOURCE = text_creator.c
 
