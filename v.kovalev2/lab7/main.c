@@ -73,8 +73,8 @@ int searchString(int num_of_line)
     return 0;
 }
 
-void handler(int signvector)
-{
+void handler(int signum){
+    (void)signum;
     if (write(STDOUT_FILENO, fileContent, buf.st_size) == -1 || write(STDOUT_FILENO, "\n", 1) == -1)
     {
         write(STDERR_FILENO, "write failed", 12);
