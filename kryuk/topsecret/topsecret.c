@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
 
     // set uid
     setuid(real_uid);
+    printf("UID set to %d\n", real_uid);
 
     // repeat first and second step
     print_user_ids();
@@ -46,7 +47,3 @@ int main(int argc, char *argv[]) {
     
     return 0;
 }
-
-// ls -l file.txt
-// chmod u+s topsecret_program.exe
-// ls -l topsecret_program.exe
