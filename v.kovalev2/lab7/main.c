@@ -73,7 +73,7 @@ int searchString(int num_of_line)
     return 0;
 }
 
-void handler()
+void handler(int signvector)
 {
     if (write(STDOUT_FILENO, fileContent, buf.st_size) == -1 || write(STDOUT_FILENO, "\n", 1) == -1)
     {
@@ -109,7 +109,7 @@ void closeFileAndExitProgram(int Code, char* message)
 
 int readFileAndCreateTable(char* filename)
 {
-    if (initVector(&vector))
+    if (initVector())
     {
         return 1;
     }
