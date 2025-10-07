@@ -113,7 +113,7 @@ void closeFileAndExitProgram(int Code, char* message){
 }
 
 int readFileAndCreateTable(){
-    if (initVector(&vector)) {
+    if (initVector()) {
         return 1;
     }
 
