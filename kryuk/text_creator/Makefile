@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -D_GNU_SOURCE
-TARGET = topsecret_program
-SOURCE = topsecret.c
+TARGET = text_creator
+SOURCE = text_creator.c
 
 all: $(TARGET)
 
