@@ -71,8 +71,8 @@ int searchString(int num_of_line){
 
 }
 
-void handler(){
-
+void handler(int signum){
+    (void)signum; // чтобы компилятор не ругался
     char buf[LEN_BUFFER];
     if (lseek(file, 0, SEEK_SET) == -1){
         write(2, "lseek failed", strlen("lseek failed"));
