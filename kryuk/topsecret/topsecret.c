@@ -6,7 +6,7 @@
 
 uid_t print_user_ids() {
     printf("\n");
-    real_uid = getuid();
+    uid_t real_uid = getuid();
     printf("Real UID: %d\n", real_uid);
     printf("Effective UID: %d\n", geteuid());
     return real_uid;
