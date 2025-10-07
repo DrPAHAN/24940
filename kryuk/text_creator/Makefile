@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99
-TARGET = getopt_program
-SOURCE = getopt.c
+TARGET = text_creator
+SOURCE = text_creator.c
 
 all: $(TARGET)
 
