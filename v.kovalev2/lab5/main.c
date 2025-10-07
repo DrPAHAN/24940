@@ -180,6 +180,23 @@ int workWithUser(){
     return 0;
 }
 
+void print_line_table(void)
+{
+    printf("===== LINE TABLE =====\n");
+    printf("Total lines: %d\n", vector.cur);
+    printf("#\toffset\tlength\n");
+
+    for (int i = 0; i < vector.cur; ++i)
+    {
+        printf("%d\t%jd\t%jd\n",
+               i + 1,
+               vector.elems[i].off,
+               vector.elems[i].len);
+    }
+    puts("======================");
+}
+
+
 int main(int argc, char *argv[]) {
     vector.elems = NULL;
     if (argc < 2) {
@@ -196,6 +213,7 @@ int main(int argc, char *argv[]) {
         closeFileAndExitProgram(EXIT_FAILURE, "readFileAndCreateTable failed");
     }
 
+    print_line_table();
 
     int res = workWithUser();
 
