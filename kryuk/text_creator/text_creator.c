@@ -69,7 +69,7 @@ int add_string(struct Node **head, struct Node **current) {
     }
     
     // Check if input is empty after cleaning
-    if (strlen(cleaned_input) == 0) {
+    if (strlen(cleaned_input) == 1) {
         free(input);
         free(cleaned_input);
         return 0;  // Continue reading
