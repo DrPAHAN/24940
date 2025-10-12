@@ -118,7 +118,7 @@ void print_debug_table() {
     
     for (int i = 0; i < total_lines; i++) {
         printf("%11d | %6ld | %4d\n", 
-               i, line_table[i].offset, line_table[i].length);
+               i + 1, line_table[i].offset, line_table[i].length);
     }
     printf("========================\n\n");
 }
