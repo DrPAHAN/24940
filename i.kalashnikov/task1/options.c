@@ -1,17 +1,3 @@
-// File: getopt_ex.c
-// $ getopt_ex -db -f abc -c -g hij -d file1 file2
-//    1 argc equals 10
-//    2 getopt_ex: illegal option -- b
-//    3 invalid option is b
-//    4 getopt_ex: illegal option -- c
-//    5 invalid option is c
-//    6 dflg equals 2
-//    7 f_ptr points to abc
-//    8 g_ptr points to hij
-//    9 invalid equals 2
-//   10 optind equals 8
-//   11 next parameter = file1
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>

@@ -12,10 +12,6 @@ typedef struct Node {
 
 void add_to_list(Node **head, Node **tail, char *str) {
     Node *new_node = (Node *)malloc(sizeof(Node));
-    if (!new_node) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(1);
-    }
     new_node->str = str;
     new_node->next = NULL;
     
@@ -28,133 +24,96 @@ void add_to_list(Node **head, Node **tail, char *str) {
     }
 }
 
-char *read_line() {
-    struct termios oldt, newt;
-    if (tcgetattr(STDIN_FILENO, &oldt) == -1) {
-        perror("tcgetattr");
-        exit(1);
-    }
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
-    newt.c_cc[VMIN] = 1;
-    newt.c_cc[VTIME] = 0;
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &newt) == -1) {
-        perror("tcsetattr");
-        exit(1);
-    }
+static struct termios oldt;
 
+char *read_line(void) {
     int capacity = 16;
     char *line = (char *)malloc(capacity);
-    if (!line) {
-        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(1);
-    }
+
     int size = 0;
     int c;
 
     while (1) {
         c = getchar();
-        if (c == EOF || c == '\n') {
+        if (c == '\n') {
             break;
         }
-        if (c == 27) {  // ESC
-            // Skip escape sequence
+
+        if (c == 27) {
             c = getchar();
-            if (c == EOF || c == '\n') {
-                break;
-            }
+            if (c == '\n') break;
             if (c == '[') {
-                // ANSI sequence, skip until finalizer (@ to ~)
                 do {
                     c = getchar();
-                    if (c == EOF || c == '\n') {
-                        goto end_loop;
+                    if (c == '\n') {
+                        line[size] = '\0';
+                        return line;
                     }
                 } while (!(c >= '@' && c <= '~'));
             }
-            // Ignore other esc, continue
             continue;
         }
-        if (c == 127 || c == 8) {  // Backspace or Ctrl-H
+
+        if (c == 127 || c == 8) {
             if (size > 0) {
                 size--;
             }
             continue;
         }
+
         if (isprint((unsigned char)c) || c == '\t') {
             if (size + 1 >= capacity) {
                 capacity *= 2;
                 char *temp = (char *)realloc(line, capacity);
-                if (!temp) {
-                    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-                    fprintf(stderr, "Memory reallocation failed\n");
-                    free(line);
-                    exit(1);
-                }
                 line = temp;
             }
             line[size++] = (char)c;
         }
-        // Ignore other characters
     }
 
-end_loop:
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &oldt) == -1) {
-        perror("tcsetattr restore");
-    }
-
-    if (c == EOF && size == 0) {
-        free(line);
-        return NULL;
-    }
-
-    if (size + 1 >= capacity) {
-        capacity += 1;
-        char *temp = (char *)realloc(line, capacity);
-        if (!temp) {
-            fprintf(stderr, "Memory reallocation failed\n");
-            free(line);
-            exit(1);
-        }
-        line = temp;
-    }
     line[size] = '\0';
-
     return line;
 }
 
-int main() {
+int main(void) {
     Node *head = NULL;
     Node *tail = NULL;
-    
+
+    struct termios newt;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    newt.c_cc[VMIN] = 1;
+    newt.c_cc[VTIME] = 0;
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
     while (1) {
         char *str = read_line();
-        if (str == NULL) {
-            break; // EOF reached
-        }
-        
+
         if (strlen(str) == 0) {
             free(str);
             continue;
         }
-        
+
         if (str[0] == '.') {
             free(str);
             break;
         }
-        
+
         add_to_list(&head, &tail, str);
     }
-    
-    // Output the list
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
     Node *current = head;
     while (current != NULL) {
         printf("%s\n", current->str);
         current = current->next;
     }
-    
-    // Free memory
+
     current = head;
     while (current != NULL) {
         Node *temp = current;
@@ -162,6 +121,6 @@ int main() {
         free(temp->str);
         free(temp);
     }
-    
+
     return 0;
 }
