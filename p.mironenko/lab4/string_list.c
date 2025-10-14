@@ -101,6 +101,7 @@ int main() {
     // Выводим список
     printf("\nСписок введенных строк:\n");
     print_list(head);
+    printf("\n");
 
     // Освобождаем память
     free_list(head);
