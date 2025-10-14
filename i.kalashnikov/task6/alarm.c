@@ -70,21 +70,26 @@ int main(void) {
 
     int n;
     char buf[1024];
+    char er[100];
 
+    alarm(5);
+    printf("\nВведите номер строки (0 для выхода, у вас 5 секунд): ");
     while (1) {
-        printf("\nВведите номер строки (0 для выхода, у вас 5 секунд): ");
-
-        alarm(5);
+        
         if (scanf("%d", &n) != 1) {
+            printf("Ошибка ввода\n");
+            fgets(er, 100, stdin);
             alarm(0);
-            break;
+            printf("\nВведите номер строки (0 для выхода): ");
+            continue;
         }
         alarm(0);
-
-        if (n == 0)
+        if (n == 0) {
             break;
+        }
         if (n < 1 || n > lines) {
             printf("Неверный номер (1–%d)\n", lines);
+            printf("\nВведите номер строки (0 для выхода): ");
             continue;
         }
 
@@ -92,6 +97,7 @@ int main(void) {
         int len = read(fd, buf, table[n - 1].length);
         buf[len] = '\0';
         printf("Строка %d: %s\n", n, buf);
+        printf("\nВведите номер строки (0 для выхода): ");
     }
 
     free(table);

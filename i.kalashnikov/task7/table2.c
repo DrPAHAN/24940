@@ -78,25 +78,32 @@ int main(void) {
     for (int i = 0; i < lines; i++)
         printf("%d\t%ld\t%d\n", i + 1, table[i].offset, table[i].length);
 
-    int n;
-    while (1) {
-        printf("\nВведите номер строки (0 для выхода, у вас 5 секунд): ");
+    char er[100];
 
-        alarm(5);
+    int n;
+    alarm(5);
+    printf("\nВведите номер строки (0 для выхода, у вас 5 секунд): ");
+    while (1) {
+
         if (scanf("%d", &n) != 1) {
+            printf("Ошибка ввода\n");
+            fgets(er, 100, stdin);
             alarm(0);
-            break;
+            printf("\nВведите номер строки (0 для выхода): ");
+            continue;
         }
         alarm(0);
-
-        if (n == 0)
+        if (n == 0) {
             break;
+        }
         if (n < 1 || n > lines) {
             printf("Неверный номер (1–%d)\n", lines);
+            printf("\nВведите номер строки (0 для выхода): ");
             continue;
         }
 
         printf("Строка %d: %.*s\n", n, table[n - 1].length, file_map + table[n - 1].offset);
+        printf("\nВведите номер строки (0 для выхода): ");
     }
 
     free(table);

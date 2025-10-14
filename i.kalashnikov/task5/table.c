@@ -54,10 +54,16 @@ int main(void) {
 
     int n;
     char buf[1024];
+    char er[100];
 
     while (1) {
         printf("\nВведите номер строки (0 для выхода): ");
-        if (scanf("%d", &n) != 1 || n == 0)
+        if (scanf("%d", &n) != 1) {
+            printf("Ошибка ввода\n");
+            fgets(er, 100, stdin);
+            continue;
+        }
+        if (n == 0)
             break;
         if (n < 1 || n > lines) {
             printf("Неверный номер (1–%d)\n", lines);

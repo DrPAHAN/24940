@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
                 // Print ulimit
                 {
                     struct rlimit rl;
-                    if (getrlimit(RLIMIT_FSIZE, &rl) < 0) {
+                    if (getrlimit(RLIMIT_NPROC, &rl) < 0) {
                         perror("getrlimit failed");
                     } else {
                         if (rl.rlim_cur == RLIM_INFINITY) {
