@@ -139,16 +139,27 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    int first_input = 1;
+    
     while (1) {
-        printf("\nEnter line number (0 to quit): ");
-        fflush(stdout);
 
-        alarm(5); 
+        printf("\nEnter line number (0 to quit): ");
+
+        if (first_input) {
+            alarm(5);  
+        } else {
+            alarm(0);  
+        }
 
         int num;
         int ret = scanf("%d", &num);
 
-        alarm(0); 
+        alarm(0);  
+
+        if (first_input) {
+            first_input = 0;  
+        }
+
 
         if (ret != 1) {
             fprintf(stderr, "Invalid input, please enter a number\n");
