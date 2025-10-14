@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +21,7 @@ char* clean_input(const char *input) {
     int pointer = 0;
     int in_escape = 0;
     
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         // Check for escape sequence start
         if (input[i] == '\033' && i + 1 < len && input[i + 1] == '[') {
             in_escape = 1;
@@ -36,7 +37,7 @@ char* clean_input(const char *input) {
         }
         
         // Keep printable characters and tabs
-        if (isprint(input[i]) || input[i] == '\t') {
+        if (isprint(input[i]) || input[i] == '\t' || input[i] == '.') {
             cleaned[pointer] = input[i];
             pointer++;
         }
@@ -53,7 +54,10 @@ int add_string(struct Node **head, struct Node **current) {
     size_t input_size = 0;
 
     // Read input
-    ssize_t bytes_read = getline(&input, &input_size, stdin);
+    if (getline(&input, &input_size, stdin) == -1) {
+        printf("Error reading input\n");
+        return 1;
+    }
     
     if (input == NULL) {
         printf("Error reading input\n");
@@ -68,17 +72,18 @@ int add_string(struct Node **head, struct Node **current) {
         return 1;
     }
     
+    // Check if input is a dot (termination character)
+    if (cleaned_input[0] == '.') {
+        free(input);
+        free(cleaned_input);
+        return 1;
+    }
+    
     // Check if input is empty after cleaning
     if (strlen(cleaned_input) == 1) {
         free(input);
         free(cleaned_input);
         return 0;  // Continue reading
-    }
-    
-    if (cleaned_input[0] == '.') {
-        free(input);
-        free(cleaned_input);
-        return 1;
     }
     
     // Allocate memory
