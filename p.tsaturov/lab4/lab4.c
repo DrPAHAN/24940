@@ -37,16 +37,17 @@ void free_list(Node *head) {
 }
 
 int main() {
-    char buffer[MAX_LEN];
+    char buffer[MAX_LEN] = {0};
     Node *head = NULL, *tail = NULL;
 
     while (1) {
+
         if (!fgets(buffer, sizeof(buffer), stdin))
             break;
         if (buffer[0] == '.')
             break;
-        if (buffer[strlen(buffer) - 1] == '\n')
-            buffer[strlen(buffer) - 1] = '\0';
+            
+        buffer[strcspn(buffer, "\n")] = '\0';
         
         Node *new_node = create_node(buffer);
 
