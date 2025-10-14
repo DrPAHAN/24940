@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#define _GNU_SOURCE
 
 // Structure for linked list node
 struct Node {
@@ -20,7 +21,7 @@ char* clean_input(const char *input) {
     int pointer = 0;
     int in_escape = 0;
     
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         // Check for escape sequence start
         if (input[i] == '\033' && i + 1 < len && input[i + 1] == '[') {
             in_escape = 1;
@@ -53,7 +54,10 @@ int add_string(struct Node **head, struct Node **current) {
     size_t input_size = 0;
 
     // Read input
-    ssize_t bytes_read = getline(&input, &input_size, stdin);
+    if (getline(&input, &input_size, stdin) == -1) {
+        printf("Error reading input\n");
+        return 1;
+    }
     
     if (input == NULL) {
         printf("Error reading input\n");
