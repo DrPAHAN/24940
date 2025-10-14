@@ -195,12 +195,12 @@ int main(int argc, char *argv[]) {
     int buffer_size = 0;
     
     printf("Program ready. You have 5 seconds to enter line number (0 to exit):\n");
+
+    // Set alarm for 5 seconds
+    alarm(5);
     
     while (1) {
         printf("> ");
-        
-        // Set alarm for 5 seconds
-        alarm(5);
         
         if (scanf("%d", &line_number) != 1) {
             // Cancel alarm since we got input (even if invalid)

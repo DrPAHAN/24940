@@ -36,7 +36,7 @@ char* clean_input(const char *input) {
         }
         
         // Keep printable characters and tabs
-        if (isprint(input[i]) || input[i] == '\t') {
+        if (isprint(input[i]) || input[i] == '\t' || input[i] == '.') {
             cleaned[pointer] = input[i];
             pointer++;
         }
