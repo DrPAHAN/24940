@@ -1,3 +1,6 @@
+#ifndef RLIMIT_NPROC
+#define RLIMIT_NPROC 6 
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -5,7 +8,7 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/resource.h>
-#include <linux/limits.h>
+#include <limits.h>
 
 extern char *optarg;
 extern int optopt;
@@ -25,8 +28,11 @@ void print_pids() {
 
 void print_ulimit() {
     struct rlimit rl;
-    if (getrlimit(RLIMIT_DATA, &rl) == 0) {
-        printf("Current data segment size limit: %lu\n", rl.rlim_cur);
+    if (getrlimit(RLIMIT_NPROC, &rl) == 0) {
+        if (rl.rlim_cur == RLIM_INFINITY)
+            printf("unlimited\n");
+        else
+            printf("%lu\n", rl.rlim_cur);
     } else {
         perror("getrlimit");
     }
@@ -41,7 +47,7 @@ int set_ulimit(const char *val_str) {
     }
     struct rlimit rl;
     rl.rlim_cur = rl.rlim_max = val;
-    if (setrlimit(RLIMIT_DATA, &rl) != 0) {
+    if (setrlimit(RLIMIT_NPROC, &rl) != 0) {
         perror("setrlimit");
         return -1;
     }
