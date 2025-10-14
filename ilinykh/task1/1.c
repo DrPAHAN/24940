@@ -1,6 +1,3 @@
-#ifndef RLIMIT_NPROC
-#define RLIMIT_NPROC 6 
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,7 +5,7 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/resource.h>
-#include <limits.h>
+#include <linux/limits.h>
 
 extern char *optarg;
 extern int optopt;
