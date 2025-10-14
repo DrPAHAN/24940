@@ -1,8 +1,8 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#define _GNU_SOURCE
 
 // Structure for linked list node
 struct Node {
@@ -72,17 +72,18 @@ int add_string(struct Node **head, struct Node **current) {
         return 1;
     }
     
+    // Check if input is a dot (termination character)
+    if (cleaned_input[0] == '.') {
+        free(input);
+        free(cleaned_input);
+        return 1;
+    }
+    
     // Check if input is empty after cleaning
     if (strlen(cleaned_input) == 1) {
         free(input);
         free(cleaned_input);
         return 0;  // Continue reading
-    }
-    
-    if (cleaned_input[0] == '.') {
-        free(input);
-        free(cleaned_input);
-        return 1;
     }
     
     // Allocate memory
