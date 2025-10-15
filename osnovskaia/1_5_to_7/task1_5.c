@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <ctype.h>
 #include <string.h>
-
 #define MAX_LINES 1000
 #define BUFFER_SIZE 1024
 
@@ -12,6 +12,21 @@ struct line_info
     off_t offset;
     size_t length;
 };
+
+int check_input(char *input)
+{
+    int i = 0;
+    while (input[i] != '\0')
+    {
+        if (!isdigit(input[i]))
+        {
+            printf("ваш ввод содержит что-то, что не цифра. проверьте и попробуйте еще раз\n");
+            return 0;
+        }
+        i++;
+    }
+    return 1;
+}
 
 int main(int argc, char *argv[])
 {
@@ -84,52 +99,66 @@ int main(int argc, char *argv[])
 
     while (read(STDIN_FILENO, input, sizeof(input)) > 0)
     {
-        line_number = atoi(input);
 
-        if (line_number == 0)
+        size_t len = strlen(input);
+        if (len > 0 && input[len - 1] == '\n')
         {
-            break;
+            input[len - 1] = '\0';
         }
 
-        if (line_number < 1 || line_number > line_count)
+        if (!check_input(input))
         {
-            printf("Ошибка: строка %d не существует. Доступные строки: 1-%d\n",
-                   line_number, line_count);
+            printf("Введите номер строки (0 для выхода): ");
+            continue;
         }
         else
         {
-            int index = line_number - 1;
+            line_number = atoi(input);
 
-            // Позиционируемся и читаем строку
-            if (lseek(fd, lines[index].offset, SEEK_SET) == -1)
+            if (line_number == 0)
             {
-                perror("Ошибка позиционирования");
-                printf("Введите номер строки (0 для выхода): ");
-                continue;
+                break;
             }
 
-            char *line_buffer = malloc(lines[index].length + 1);
-            if (line_buffer == NULL)
+            if (line_number < 1 || line_number > line_count)
             {
-                perror("Ошибка выделения памяти");
-                printf("Введите номер строки (0 для выхода): ");
-                continue;
+                printf("Ошибка: строка %d не существует. Доступные строки: 1-%d\n",
+                       line_number, line_count);
             }
-
-            ssize_t read_bytes = read(fd, line_buffer, lines[index].length);
-            if (read_bytes == -1)
+            else
             {
-                perror("Ошибка чтения");
+                int index = line_number - 1;
+
+                // Позиционируемся и читаем строку
+                if (lseek(fd, lines[index].offset, SEEK_SET) == -1)
+                {
+                    perror("Ошибка позиционирования");
+                    printf("Введите номер строки (0 для выхода): ");
+                    continue;
+                }
+
+                char *line_buffer = malloc(lines[index].length + 1);
+                if (line_buffer == NULL)
+                {
+                    perror("Ошибка выделения памяти");
+                    printf("Введите номер строки (0 для выхода): ");
+                    continue;
+                }
+
+                ssize_t read_bytes = read(fd, line_buffer, lines[index].length);
+                if (read_bytes == -1)
+                {
+                    perror("Ошибка чтения");
+                    free(line_buffer);
+                    printf("Введите номер строки (0 для выхода): ");
+                    continue;
+                }
+
+                line_buffer[read_bytes] = '\0';
+                printf("Строка %d: %s\n", line_number, line_buffer);
                 free(line_buffer);
-                printf("Введите номер строки (0 для выхода): ");
-                continue;
             }
-
-            line_buffer[read_bytes] = '\0';
-            printf("Строка %d: %s\n", line_number, line_buffer);
-            free(line_buffer);
         }
-
         printf("Введите номер строки (0 для выхода): ");
     }
 

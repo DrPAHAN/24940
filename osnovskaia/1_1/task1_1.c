@@ -7,12 +7,13 @@
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <string.h>
-// todo print usage
 
 void print_usage()
 {
+    printf("-i Печатает реальные и эффективные идентификаторы пользователя и группы.\n-s Процесс становится лидером группы. Подсказка: смотри setpgid(2).\n-p Печатает идентификаторы процесса, процесса-родителя и группы процессов.\n-u Печатает значение ulimit\n");
+    printf("-Unew_ulimit Изменяет значение ulimit. Подсказка: смотри atol(3C) на странице руководства strtol(3C)\n-c Печатает размер в байтах core-файла, который может быть создан.\n-Csize Изменяет размер core-файла");
+    printf("-d Печатает текущую рабочую директорию\n-v Распечатывает переменные среды и их значения\n-Vname=value Вносит новую переменную в среду или изменяет значение существующей переменной.\n\n\n");
 }
-
 
 void set_environment_variable(const char *name, const char *value)
 {
@@ -48,10 +49,10 @@ int parse_name_value(const char *input, char **name, char **value)
     (*name)[name_len] = '\0';
     return 0;
 }
-// todo в функции возможно
 extern char **environ;
 int main(int argc, char *argv[])
 {
+    print_usage();
     int c;
     while ((c = getopt(argc, argv, "ispuU:cC:dvV:")) != -1)
     {
@@ -59,7 +60,6 @@ int main(int argc, char *argv[])
         {
         case 'i':
         {
-            // ask как можно отследить изменения реального и эффективного
             uid_t effective_uid = geteuid();
             gid_t effective_gid = getegid();
             uid_t real_uid = getuid();
@@ -75,9 +75,6 @@ int main(int argc, char *argv[])
                 return 1;
             }
             printf("Process became new group leader\n");
-            // 0 - текущий процесс
-            // в поле для группы у него тоже 0 потому что он не смодет стать лидером своей текущей
-            // группы если он уже им не является а если является то он останется как был и все
         }
         break;
         case 'p':
@@ -88,18 +85,27 @@ int main(int argc, char *argv[])
         break;
         case 'u':
         {
-            struct rlimit rlp;
-            if (getrlimit(RLIMIT_FSIZE, &rlp) == -1)
+            struct rlimit rlim;
+
+            if (getrlimit(RLIMIT_NPROC, &rlim) == 0)
             {
-                perror("getrlimit");
-                return 1;
+                if (rlim.rlim_cur == RLIM_INFINITY)
+                {
+                    printf("Process Limit (ulimit -u): неограничен\n");
+                }
+                else
+                {
+                    printf("Process Limit (ulimit -u): %ld\n", (long)rlim.rlim_cur);
+                }
             }
-            printf("ulimit: %ld\n", (long)rlp.rlim_cur);
+            else
+            {
+                perror("Ошибка при получении лимита процессов");
+            }
         }
         break;
         case 'U':
         {
-            // Для опции с аргументом используем optarg
             if (optarg != NULL)
             {
                 long new_limit = atol(optarg);
@@ -124,10 +130,6 @@ int main(int argc, char *argv[])
             }
         }
         break;
-        /*
-        Core-файл (дамп памяти) — это "моментальный снимок" оперативной памяти программы
-        в тот самый момент, когда она аварийно завершилась (упала).
-        */
         case 'c':
         {
             struct rlimit rlim;
@@ -194,13 +196,13 @@ int main(int argc, char *argv[])
         break;
         case 'd':
         {
-#ifdef MAXPATHLEN  // Для Solaris
-    char cwd[MAXPATHLEN];
-#elif defined(PATH_MAX)  // Для Linux и других
-    char cwd[PATH_MAX];
-#else
-    char cwd[4096];  // Fallback значение
-#endif
+            // #ifdef MAXPATHLEN // Для Solaris
+            //           char cwd[MAXPATHLEN];
+            // #elif defined(PATH_MAX) // Для Linux и других
+            char cwd[PATH_MAX];
+            // #else
+            //           char cwd[4096]; // Fallback значение
+            // #endif
             if (getcwd(cwd, sizeof(cwd)) != NULL)
             {
                 printf("Current directory: %s\n", cwd);
@@ -242,10 +244,9 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    // Если опций нет
     if (optind == 1)
     {
-        printf("No options provided. Use -d to print current directory.\n");
+        printf("No options provided.\n");
     }
     return 0;
 }

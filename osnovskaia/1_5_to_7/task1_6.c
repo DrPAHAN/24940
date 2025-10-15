@@ -5,6 +5,7 @@
 #include <string.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <ctype.h>
 
 #define MAX_LINES 1000
 #define BUFFER_SIZE 1024
@@ -15,6 +16,73 @@ struct line_info
     off_t offset;
     size_t length;
 };
+
+int check_line_num(int line_number, int line_count)
+{
+    if (line_number == 0)
+    {
+        printf("Выход по запросу пользователя.\n");
+        return 0;
+    }
+    if (line_number < 1 || line_number > line_count)
+    {
+        printf("Ошибка: строка %d не существует. Доступные строки: 1-%d\n",
+               line_number, line_count);
+
+        return 1;
+    }
+    return 2;
+}
+
+void read_from_file(int line_number, struct line_info lines[], int fd, int line_count)
+{
+    int check_result = check_line_num(line_number, line_count);
+    if (check_result == 0)
+    {
+        close(fd);
+        exit(0);
+    }
+    if (check_result == 1)
+        return;
+
+    int index = line_number - 1;
+
+    // Позиционируемся и читаем строку
+    if (lseek(fd, lines[index].offset, SEEK_SET) == -1)
+    {
+        perror("Ошибка позиционирования");
+    }
+    else
+    {
+        char *line_buffer = malloc(lines[index].length + 1);
+        if (line_buffer != NULL)
+        {
+            ssize_t read_bytes = read(fd, line_buffer, lines[index].length);
+            if (read_bytes != -1)
+            {
+                line_buffer[read_bytes] = '\0';
+                printf("Строка %d: %s\n", line_number, line_buffer);
+            }
+            free(line_buffer);
+        }
+    }
+    return;
+}
+
+int check_input(char *input)
+{
+    int i = 0;
+    while (input[i] != '\0')
+    {
+        if (!isdigit(input[i]))
+        {
+            printf("ваш ввод содержит что-то, что не цифра. проверьте и попробуйте еще раз\n");
+            return 0;
+        }
+        i++;
+    }
+    return 1;
+}
 
 volatile sig_atomic_t timeout_occurred = 0;
 
@@ -125,7 +193,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Основной цикл с таймаутом
     char input[100];
     int line_number;
 
@@ -151,74 +218,37 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Обрабатываем введенные данные
     input[bytes_read_input] = '\0';
-    line_number = atoi(input);
-
-    if (line_number == 0)
+    if (bytes_read_input > 0 && input[bytes_read_input - 1] == '\n')
     {
-        printf("Выход по запросу пользователя.\n");
-        close(fd);
-        return 0;
+        input[bytes_read_input - 1] = '\0';
+        bytes_read_input--;
     }
-
+    if (check_input(input))
+    {
+        line_number = atoi(input);
+        read_from_file(line_number, lines, fd, line_count);
+    }
     while (1)
     {
-        if (line_number < 1 || line_number > line_count)
+        printf("Введите номер строки (0 для выхода): ");
+        ssize_t bytes_read_input = read(STDIN_FILENO, input, sizeof(input) - 1);
+        if (bytes_read_input <= 0)
+            break;
+        input[bytes_read_input] = '\0';
+        if (bytes_read_input > 0 && input[bytes_read_input - 1] == '\n')
         {
-            printf("Ошибка: строка %d не существует. Доступные строки: 1-%d\n",
-                   line_number, line_count);
+            input[bytes_read_input - 1] = '\0';
+            bytes_read_input--;
+        }
+        if (!check_input(input))
+        {
+            continue;
         }
         else
         {
-            int index = line_number - 1;
-
-            // Позиционируемся и читаем строку
-            if (lseek(fd, lines[index].offset, SEEK_SET) == -1)
-            {
-                perror("Ошибка позиционирования");
-            }
-            else
-            {
-                char *line_buffer = malloc(lines[index].length + 1);
-                if (line_buffer != NULL)
-                {
-                    ssize_t read_bytes = read(fd, line_buffer, lines[index].length);
-                    if (read_bytes != -1)
-                    {
-                        line_buffer[read_bytes] = '\0';
-                        printf("Строка %d: %s\n", line_number, line_buffer);
-                    }
-                    free(line_buffer);
-                }
-            }
-        }
-
-        printf("\nВведите номер строки (0 для выхода): ");
-
-        // Сбрасываем флаг таймаута и устанавливаем новый таймер
-        timeout_occurred = 0;
-        alarm(TIMEOUT);
-
-        bytes_read_input = read(STDIN_FILENO, input, sizeof(input) - 1);
-        alarm(0); // Отменяем таймер
-
-        if (timeout_occurred)
-        {
-            print_entire_file(fd);
-            break;
-        }
-
-        if (bytes_read_input <= 0)
-            break;
-
-        input[bytes_read_input] = '\0';
-        line_number = atoi(input);
-
-        if (line_number == 0)
-        {
-            printf("Программа завершена.\n");
-            break;
+            line_number = atoi(input);
+            read_from_file(line_number, lines, fd, line_count);
         }
     }
     close(fd);

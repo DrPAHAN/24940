@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <ctype.h>
 
 #define MAX_LINES 1000
 #define BUFFER_SIZE 1024
@@ -24,6 +25,74 @@ volatile sig_atomic_t timeout_occurred = 0;
 void alarm_handler(int sig)
 {
     timeout_occurred = 1;
+}
+
+int check_line_num(int line_number, int line_count)
+{
+    if (line_number == 0)
+    {
+        printf("Выход по запросу пользователя.\n");
+        return 0;
+    }
+    if (line_number < 1 || line_number > line_count)
+    {
+        printf("Ошибка: строка %d не существует. Доступные строки: 1-%d\n",
+               line_number, line_count);
+
+        return 1;
+    }
+    return 2;
+}
+
+void read_from_file(int line_number, struct line_info lines[], char *file_data, int line_count, int file_size)
+{
+    int check_result = check_line_num(line_number, line_count);
+    if (check_result == 0)
+    {
+        // Освобождаем отображенную память
+        if (munmap(file_data, file_size) == -1)
+        {
+            perror("Ошибка освобождения отображенной памяти");
+        }
+        exit(0);
+    }
+    if (check_result == 1)
+        return;
+
+    int index = line_number - 1;
+
+    // Получаем указатель на начало строки в отображенной памяти
+    char *line_start_ptr = file_data + lines[index].offset;
+    // Создаем буфер для строки и копируем данные
+    char *line_buffer = malloc(lines[index].length + 1);
+    if (line_buffer != NULL)
+    {
+        // Копируем строку из отображенной памяти
+        memcpy(line_buffer, line_start_ptr, lines[index].length);
+        line_buffer[lines[index].length] = '\0';
+        printf("Строка %d: %s", line_number, line_buffer);
+        free(line_buffer);
+    }
+    else
+    {
+        perror("Ошибка выделения памяти");
+    }
+    return;
+}
+
+int check_input(char *input)
+{
+    int i = 0;
+    while (input[i] != '\0')
+    {
+        if (!isdigit(input[i]))
+        {
+            printf("ваш ввод содержит что-то, что не цифра. проверьте и попробуйте еще раз\n");
+            return 0;
+        }
+        i++;
+    }
+    return 1;
 }
 
 // Функция для вывода всего содержимого файла
@@ -161,71 +230,42 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Обрабатываем введенные данные
     input[bytes_read_input] = '\0';
-    line_number = atoi(input);
-
-    if (line_number == 0)
+    if (bytes_read_input > 0 && input[bytes_read_input - 1] == '\n')
     {
-        printf("Выход по запросу пользователя.\n");
-        close(fd);
-        return 0;
+        input[bytes_read_input - 1] = '\0';
+        bytes_read_input--;
+    }
+    if (check_input(input))
+    {
+        line_number = atoi(input);
+        read_from_file(line_number, lines, file_data, line_count, file_size);
     }
 
     while (1)
     {
-        if (line_number < 1 || line_number > line_count)
-        {
-            printf("Ошибка: строка %d не существует. Доступные строки: 1-%d\n",
-                   line_number, line_count);
-        }
-        else
-        {
-            int index = line_number - 1;
-
-            // Получаем указатель на начало строки в отображенной памяти
-            char *line_start_ptr = file_data + lines[index].offset;
-            // Создаем буфер для строки и копируем данные
-            char *line_buffer = malloc(lines[index].length + 1);
-            if (line_buffer != NULL)
-            {
-                // Копируем строку из отображенной памяти
-                memcpy(line_buffer, line_start_ptr, lines[index].length);
-                line_buffer[lines[index].length] = '\0';
-                printf("Строка %d: %s\n", line_number, line_buffer);
-                free(line_buffer);
-            }
-            else
-            {
-                perror("Ошибка выделения памяти");
-            }
-        }
 
         printf("\nВведите номер строки (0 для выхода): ");
 
-        // Сбрасываем флаг таймаута и устанавливаем новый таймер
-        timeout_occurred = 0;
-        alarm(TIMEOUT);
-
         bytes_read_input = read(STDIN_FILENO, input, sizeof(input) - 1);
-        alarm(0); // Отменяем таймер
-
-        if (timeout_occurred)
-        {
-            print_entire_file(file_data, file_size);
-            break;
-        }
 
         if (bytes_read_input <= 0)
             break;
 
         input[bytes_read_input] = '\0';
-        line_number = atoi(input);
-
-        if (line_number == 0)
+        if (bytes_read_input > 0 && input[bytes_read_input - 1] == '\n')
         {
-            printf("Программа завершена.\n");
-            break;
+            input[bytes_read_input - 1] = '\0';
+            bytes_read_input--;
+        }
+        if (!check_input(input))
+        {
+            continue;
+        }
+        else
+        {
+            line_number = atoi(input);
+            read_from_file(line_number, lines, file_data, line_count, file_size);
         }
     }
     // Освобождаем отображенную память
