@@ -1,3 +1,5 @@
+
+#include <sys/stat.h>
 #include <sys/param.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -64,7 +66,7 @@ int main(int argc, char *argv[])
             gid_t effective_gid = getegid();
             uid_t real_uid = getuid();
             gid_t real_gid = getgid();
-            printf("effective id's: uid=%d, gid=%d \nreal id's: uid=%d, gid=%d", (int)effective_uid, (int)effective_gid, (int)real_uid, (int)real_gid);
+            printf("effective id's: uid=%d, gid=%d \nreal id's: uid=%d, gid=%d\n", (int)effective_uid, (int)effective_gid, (int)real_uid, (int)real_gid);
         }
         break;
         case 's':
@@ -80,29 +82,14 @@ int main(int argc, char *argv[])
         case 'p':
         {
             pid_t pid = getpid();
-            printf("Process id: %d, parent process id:%d, group process id:%d", (int)pid, (int)getppid(), (int)getpgid(pid));
+            printf("Process id: %d, parent process id:%d, group process id:%d\n", (int)pid, (int)getppid(), (int)getpgid(pid));
         }
         break;
         case 'u':
         {
-            struct rlimit rlim;
-
-            if (getrlimit(RLIMIT_NPROC, &rlim) == 0)
-            {
-                if (rlim.rlim_cur == RLIM_INFINITY)
-                {
-                    printf("Process Limit (ulimit -u): неограничен\n");
-                }
-                else
-                {
-                    printf("Process Limit (ulimit -u): %ld\n", (long)rlim.rlim_cur);
-                }
-            }
-            else
-            {
-                perror("Ошибка при получении лимита процессов");
-            }
-        }
+	long max_proc = sysconf(_SC_CHILD_MAX);
+        printf("sysconf(_SC_CHILD_MAX): %ld\n", max_proc);
+ 	}
         break;
         case 'U':
         {
