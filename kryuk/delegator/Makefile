@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99
-TARGETS = breed
-SOURCE = breed.c
+TARGETS = delegator
+SOURCE = delegator.c
 
 all: $(TARGETS)
 
