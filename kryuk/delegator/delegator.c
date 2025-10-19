@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
             perror("waitpid");
             exit(1);
         }
+
+        printf("\n");
         
         if (WIFEXITED(status)) {
             printf("Code of exit: %d\n", WEXITSTATUS(status));
