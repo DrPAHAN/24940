@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     }
     
     printf("Parent process (PID: %d) started\n", getpid());
-    printf("Creating a subprocess to execute cat...\n");
+    printf("Creating a subprocess to execute cat...\n\n");
     
     pid = fork();
     
@@ -25,22 +25,21 @@ int main(int argc, char *argv[]) {
     }
     
     if (pid == 0) {
-        printf("Child process (PID: %d) started\n", getpid());
-        printf("Executing command: cat %s\n", argv[1]);
+        printf("Child process (PID: %d) started\n\n", getpid());
         
         execlp("cat", "cat", argv[1], (char *)NULL);
         
         perror("execlp");
         exit(EXIT_FAILURE);
     } else {
-        printf("Parent process is waiting for the child process to finish (PID: %d)\n", pid);
+        printf("Parent process is waiting for the child process to finish (PID: %d)\n\n", pid);
         
         if (waitpid(pid, &status, 0) == -1) {
             perror("waitpid");
             exit(EXIT_FAILURE);
         }
         
-        printf("=== LAST PARENT WORD: Child process finished ===\n");
+        printf("\n=== LAST PARENT WORD: Child process finished ===\n");
     }
     
     return EXIT_SUCCESS;
